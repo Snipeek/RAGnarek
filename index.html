@@ -1,0 +1,862 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>RAGнарёк на Llama’х и не только</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <!-- Подключение стилей Highlight.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs2015.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+
+    <!-- Reveal.js CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4/dist/reveal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4/dist/theme/white.css">
+    <!-- Reveal.js JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4/dist/reveal.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <style>
+        @font-face{
+        font-family:"Helvetica Neue";
+        src:url("https://candyfonts.com/wp-data/2018/10/26/11538/HELR45W.ttf") format("woff"),
+        url("https://candyfonts.com/wp-data/2018/10/26/11538/HELR45W.ttf") format("opentype"),
+        url("https://candyfonts.com/wp-data/2018/10/26/11538/HELR45W.ttf") format("truetype");
+    }
+    </style>
+    <style>
+
+        .reveal .slide-number {
+            top: 0;
+            bottom: initial;
+            padding: 12px;
+            right: 22px;
+            backdrop-filter: blur(10px);
+            border-radius: 8px;
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+        }
+        .slide-number-a {
+            font-size: 24px;
+        }
+
+        .reveal {
+            width: 100%;
+            height: 100%;
+        }
+
+        .reveal .slides {
+            width: 100%;
+            height: 100%;
+        }
+
+        section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-size: cover;
+            background-position: center;
+        }
+
+        h2, h3 {
+            font-weight: 500 !important;
+            line-height: .8 !important;
+        }
+
+        b, strong {
+            font-weight: 500 !important;
+        }
+
+        * {
+            font-family: "Helvetica Neue" !important;
+            text-transform: none !important;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .im {
+            height: 60vh;
+            margin: 0 auto;
+            margin-bottom: 0vh !important;
+            margin-top: -20vh !important;
+            border-radius: 20px;
+            object-fit: cover;
+        }
+        .prev {
+            height: 70vh;
+            margin: 0 auto;
+            margin-bottom: 0vh !important;
+            margin-top: -8vh !important;
+            border-radius: 20px;
+            object-fit: cover;
+        }
+
+        .prev code {
+            height: 100%;
+            max-height: 100% !important;
+        }
+
+
+        .full {
+            border-radius: 20px;
+            width: calc(100vw - 2em);
+            height: calc(100vh - 2em);
+            border: 1px solid #222;
+        }
+
+        .tggif {
+            height: 90vh;
+            border-radius: 29px;
+        }
+
+        .message {
+            background: #9458ff;
+            padding: .2em .4em;
+            border-radius: 1em 1em 1em .1em;
+        }
+
+        .message.me {
+            border-radius: 1em 1em .1em 1em;
+        }
+
+        .reveal h3 {
+            margin: 12px 0;
+            margin-bottom: 18px;
+        }
+        .reveal h2 {
+            margin: 20px 0;
+            margin-top: 8px;
+        }
+
+        pre {
+            box-shadow: none !important;
+            margin: 0 !important;
+        }
+
+        small {
+            color: #999;
+            margin: 4px 0;
+        }
+        
+    </style>
+</head>
+
+<body>
+<div class="reveal">
+    <div class="slides">
+        <section>
+            <section data-background-color="#0b0b0b">
+                <div class="full" style="margin-left: 1em;overflow: hidden;position: relative;">
+                    <div style="position: absolute;top: 1.5em;left: 50%; transform: translateX(-50%);z-index: 999;">
+                        <h2 style="color: #fff;">RAGнарёк на Llama’х</h2>
+                        <h2 style="color: #fff;">и не только</h2>
+                    </div>
+                    <video autoplay muted loop style="max-width: 100%; max-height: 100%; width: 100%;height: 100%; object-fit: cover;" src="./bg1.mp4"></video>
+                    <div style="position: absolute;top: 0;width: 100vw;height: 60vh;background: linear-gradient(180deg, #794ca2 10%, transparent);"></div>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <small>О чем не будет доклад?</small>
+                    <h2 class="fragment" style="text-decoration: line-through;">Cursor</h2>
+                    <h2 class="fragment" style="text-decoration: line-through;">Copilot</h2>
+                    <h2 class="fragment" style="text-decoration: line-through;">ChatGPT напиши код</h2>
+                    <small class="fragment">Вы и так уже им пользовались</small>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <small>Мы подключим GPT в наше web приложение</small>
+                    <h2 class="fragment" style=" width: 1000px; ">Сделав его "умным"</h2>
+                    <small class="fragment" style="width: 560px">Разберемся как этот ум работает</small>
+                    <small class="fragment" style="width: 560px">И при чем тут RAG и LLama</small>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b">
+                <video class="full" autoplay muted src="./demo.mp4">
+                </video>
+            </section>
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <img class="im" src="./img.png" />
+                    <h2 class="fragment" style="margin-top: 10vh;">Плотников<br />Кирилл</h2>
+                    <small class="fragment">Фронтенд-разработчик</small>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b">
+                <img src="./logo.svg" />
+            </section>
+            <section data-background-color="#0b0b0b">
+                <small>1 / 3</small>
+                <h2>Зарождение</h2>
+            </section>
+            <section data-background-color="#0b0b0b">
+                <img class="prev" src="./graph.webp" />
+                <small class="fragment" style="margin-top: 6vh; width: 100%; text-align: center;">График развития нейросетей</small>
+                <h3 class="fragment">Затронем последний подъем</h3>
+                <small class="fragment">Чтобы разобраться почему он случился</small>
+            </section>
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <img class="prev" src="./alexnet.png" />
+                    <small style="margin-top: 6vh;">2011 год</small>
+                    <h3 class="fragment">AlexNet</h3>
+                    <small class="fragment">Обучается на GPU, уменьшается погрешность</small>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <small>обучение на GPU дает</small>
+                    <h2 class="fragment">Развитие NLP задач</h2>
+                    <small class="fragment">(распознование естественного языка)</small>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <img class="prev" src="./2011.jpg" />
+                    <small style="margin-top: 6vh;">2011 год</small>
+                    <h3 class="fragment">KirillNet (я)</h3>
+                    <small class="fragment">Обучается в школе, готовится к алгебре</small>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <img class="prev" src="./embedding.png"  style=" object-fit: contain; "/>
+                    <small style="margin-top: 2vh;">1960 => 1986 => 2003 => 2013</small>
+                    <h3 class="fragment">Skip-gram и CBOW</h3>
+                    <small class="fragment" style=" max-width: 600px;">Миколов и коллеги из Google делают embedding массовым инструментом в NLP</small>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b">
+                <img class="full" src="./embedding.png" />
+            </section>
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <img class="im" src="./2018.jpg" />
+                    <small style="margin-top: 10vh;">В 2016 я знакомлюсь с нейросетями</small>
+                    <h3 class="fragment">Распозновали меланому</h3>
+                    <small class="fragment">обучали в Matlab</small>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b">
+                <img class="full" src="./melanoma.jpg" />
+            </section>
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <small>Понимаю что тема интересная</small>
+                    <h2 class="fragment">Но не понимаю как внедрить в WEB</h2>
+                    <small class="fragment">Так как только вкатываюсь</small>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <img class="prev" src="./jspot.png" style="margin-top: -26vh !important;" />
+                    <small style="margin-top: 6vh;">Тыкаю палкой в WEB</small>
+                    <h3 class="fragment">И пытаюсь собрать проект</h3>
+                    <small class="fragment">react scss apollo graphql mongodb и прочее</small>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <small>2017 год</small>
+                    <h2 class="fragment" style="text-decoration: line-through;">CNN</h2>
+                    <h2 class="fragment" style="text-decoration: line-through;">RNN</h2>
+                    <h2 class="fragment">Трансформеры</h2>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b" data-transition="fade">
+                <img class="full" src="./transformers.jpg" />
+                <div style="position: absolute;display: flex;flex-direction: column;top: 6vh;left: 50%; transform: translateX(-50%);">
+                    <small class="fragment" style="background: #0b0b0b;color: #fff;font-size: 32px;width: fit-content;margin: 0 auto;border-radius: 12px;">вот они слева направо</small>
+                    <small class="fragment" style="background: #0b0b0b;color: #fff;font-size: 86px;width: fit-content;margin: 0 auto;border-radius: 24px;">Кончимин</small>
+                    <small class="fragment" style="background: #0b0b0b;color: #fff;font-size: 146px;width: fit-content;margin: 0 auto;border-radius: 32px;">Чингачгук</small>
+                    <small class="fragment" style="background: #0b0b0b;color: #fff;font-size: 286px;width: fit-content;margin: 0 auto;border-radius: 64px;">Чокопай</small>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <img class="im" src="./attention.png" />
+                    <small style="margin-top: 10vh;">Представлена арх. трансформеров</small>
+                    <h2 class="fragment" >"Attention is All You Need"</h2>
+                    <small class="fragment">(c) Google 2017 </small>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <img class="prev" src="./attent.png" style=" object-fit: contain; "/>
+                    <small style="margin-top: 6vh;">Суть механизма внимания</small>
+                    <h3 class="fragment" style="width: 1000px">Улавливать смысл слов параллельно</h3>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <img class="im" src="./rnn.png" style=" object-fit: contain; "/>
+                    <small style="margin-top: 10vh;">Если до этого</small>
+                    <h3 class="fragment">Мы читали слова друг за другом</h3>
+                    <small class="fragment">и пытались понять смысл сказуемого</small>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <img class="im" src="./rtran.png" style=" object-fit: contain; "/>
+                    <small style="margin-top: 10vh;">То механизм внимания</small>
+                    <h3 class="fragment">Поймет смысл слов сразу</h3>
+                    <small class="fragment">и свяжет их важность между собой</small>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <small>GPU => Word2Vec => Self-Attention</small>
+                    <h2 class="fragment">Чеховское ружье</h2>
+                    <small class="fragment">Ждем пока найдут куча данных</small>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <small style="opacity: 0.7; border-radius: 1em; color:#f7f7f7; background: #9458ff; padding: .4em; margin-bottom: .8em; ">2019 год</small>
+                    <small class="fragment" style="opacity: 0.7; border-radius: 1em;color:#f7f7f7; background: #9458ff; padding: .4em; margin-bottom: .8em; ">Ml'щик добавлен в чат</small>
+                    <h3 class="fragment message me" >сделай плиз как нибудь</h3>
+                    <h3 class="fragment message" style="margin-right: 2em;">тебе нужен берт, пока</h3>
+                    <small class="fragment" style="opacity: 0.7; border-radius: 1em;color:#f7f7f7; background: #9458ff; padding: .4em; margin-bottom: .8em; "> Ml'щик покинул чат</small>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b" data-transition="fade">
+                <img class="full" src="./bert.png" style="object-fit: cover;" />
+            </section>
+
+            <section data-background-color="#0b0b0b" data-transition="fade">
+                <img class="full" src="./bertt.png" style="object-fit: cover;" />
+            </section>
+            <section data-background-color="#0b0b0b" data-transition="fade">
+                <div class="container">
+                    <small>А как? Чего? Где...</small>
+                    <h2 class="fragment">У меня JS</h2>
+                    <small class="fragment">а там Python, TensorFlow</small>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b" data-transition="fade">
+                <div class="container">
+                    <h2>Сложно</h2>
+                    <h2 class="fragment">Страшна</h2>
+                    <h2 class="fragment">Не хочу</h2>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <img class="im" src="./chatgpt.webp" />
+                    <small style="margin-top: 10vh;">Переломный момент</small>
+                    <h2 class="fragment">ChatGPT</h2>
+                    <small class="fragment">Все только о нем и говорят</small>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <small>Но что это?</small>
+                    <h2 class="fragment">Chat</h2>
+                    <h2 class="fragment">Generative</h2>
+                    <h2 class="fragment">Pre-trained</h2>
+                    <h2 class="fragment">Transformer</h2>
+                    <small class="fragment" style=" max-width: 400px; ">Уже предобученая нейронка с котрой можно общаться</small>
+                </div>
+            </section>
+
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <small>Дал задачу - решил, в общем</small>
+                    <h2 class="fragment">Надо пробовать</h2>
+                    <small class="fragment">Эту квинтэссенцию технологий</small>
+                </div>
+            </section>
+
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <small>2 / 3</small>
+                    <h2>Первые шаги</h2>
+                </div>
+            </section>
+
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <img class="im" src="./gptmm.jpg" />
+                    <small style="margin-top: 10vh;">Балуемся через UI</small>
+                    <h3 class="fragment">Вроде работает, магия</h3>
+                    <small class="fragment">У него еще и API за копейки есть</small>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b" data-transition="fade">
+                <div class="container">
+                    <pre>
+                        <code class="prev language-javascript" data-line-numbers style="max-height: max-content;">
+    import OpenAI from "openai";
+    const client = new OpenAI();
+
+    const completion = await client.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+            {
+                role: "system",
+                content: "Ты дружелюбный помощник"
+            },
+            {
+                role: "user",
+                content: "Что такое spbfrontend?"
+            },
+        ],
+    });
+
+    console.log(completion.choices[0].message.content);
+                        </code>
+                    </pre>
+                    <h3 class="fragment" style="margin-top: 2vh;">NPM Openai</h3>
+                    <small class="fragment">Это абстракция над fetch с сахаром</small>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b" data-transition="fade">
+                <div class="container">
+                    <pre>
+                        <code class="prev language-javascript" data-line-numbers style="max-height: max-content;height: 1000px;margin-top: -12vh !important;">
+    fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${OPENAI_API_KEY}`
+        },
+        body: JSON.stringify({
+            model: "gpt-4o",
+            messages: [
+                {
+                    role: "developer",
+                    content: "Ты дружелюбный помощник"
+                },
+                {
+                    role: "user",
+                    content: "Что такое spbfrontend?"
+                }
+            ]
+        })
+    })
+    .then(response => response.json())
+    .then(completion => completion.choices[0].message.content)
+                        </code>
+                    </pre>
+                    <h3 class="fragment" style="margin-top: 0vh;">Openai API</h3>
+                    <small class="fragment">Поэтому я просто использовал fetch</small>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <img class="im" src="./proxyapi.png" />
+                    <small style="margin-top: 10vh;">Пока рубли не принимаются</small>
+                    <h3 class="fragment">Proxy API или др.</h3>
+                    <small class="fragment">openai, antropic, google</small>
+                </div>
+            </section>
+
+            <section data-background-color="#0b0b0b" data-transition="fade">
+                <img class="full" src="./juirt.png" />
+            </section>
+
+            <section data-background-color="#0b0b0b" data-transition="fade">
+                <img class="full" src="./problemh.png" />
+            </section>
+
+            <section data-background-color="#0b0b0b" data-transition="fade">
+                <img class="full" src="./juirt2.png" />
+            </section>
+            <section data-background-color="#0b0b0b" data-transition="fade">
+                <div class="container">
+                    <pre style=" width: 1000px; ">
+                        <code class="prev language-javascript" data-line-numbers style="max-height: max-content;margin-top: -12vh !important;">
+    const example = {
+        // колонки для задач
+        clusters: [
+            {
+                group: { title: "" },
+                tags: [
+                    { title: "" }
+                ],
+            }
+        ],
+        // сами задачи
+        tasks: [
+            { text: ["text", { group: "", tag: "" }, "text"] }
+        ]
+    };
+                        </code>
+                    </pre>
+                    <small>Я создаю проект из json</small>
+                    <h3 class="fragment" style="width: 700px">GPT может так ответить?</h3>
+                    <small class="fragment">Короткий ответ - да</small>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b" data-transition="fade">
+                <div class="container">
+                    <pre style=" width: 1000px; ">
+                        <code class="prev language-javascript" data-line-numbers style="max-height: max-content;height: 1000px;margin-top: -12vh !important;">
+    const response = await fetchGPT([
+        {
+            // example - пример выше
+            role: "system",
+            content: `
+                Нужна кластеризация задач для проекта.
+                Ты должен выдавать ответы только в формате json,
+                ${JSON.stringify(example)}
+                где group это группа кластеризации, tags это ее параметры,
+                а в tasks добавить несколько примеров задач,
+                которые состоят из текста и этих груп с тегами
+            `
+        },
+        {
+            // text - описание пользователя
+            role: "user",
+            content: `Сделай кластеризацию для проекта который занимается ${text}`
+        }
+    ])
+    
+    // response.choices[0].message.content => "{ "clusters": [...], "tasks": [...] }"
+                        </code>
+                    </pre>
+                    <small class="fragment" style="margin-top: -1em;">В системном сообщении</small>
+                    <h3 class="fragment">Даем инструкциию и пример</h3>
+                    <small class="fragment">И он отвечает нам json'ом</small>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <small>Умные люди называют подход</small>
+                    <h2 class="fragment">Few-shot promting</h2>
+                    <small class="fragment">Когда мы показываем примеры ответов и вопросы на паре примеров и говорим делать что-то похожее</small>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <table style="font-size: .8em;width: 1200px;margin: 0;">
+                        <thead>
+                          <tr>
+                            <th><b>Метод</b></th>
+                            <th><b>Кол-во примеров</b></th>
+                            <th><b>Нужно кодить?</b></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td><strong>Zero-shot</strong></td>
+                            <td>0</td>
+                            <td>❌ Нет</td>
+                          </tr>
+                          <tr>
+                            <td><strong>Few-shot</strong></td>
+                            <td>3–10</td>
+                            <td>❌ Нет</td>
+                          </tr>
+                          <tr>
+                            <td><strong>P-tuning</strong></td>
+                            <td>100–10,000</td>
+                            <td>✅ Да (настройка промптов)</td>
+                          </tr>
+                          <tr>
+                            <td><strong>Fine-tuning</strong></td>
+                            <td>1,000+</td>
+                            <td>✅ Да (полное дообучение модели)</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b">
+                <video class="full" autoplay muted loop src="./juirtse.mp4">
+                </video>
+            </section>
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <h2>Где его можно еще применить?</h2>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <img class="im" src="./kachata.png" />
+                    <h2 style="margin-top: 10vh;">Блоги</h2>
+                    <small class="fragment">Описываешь пример, загружаешь новый контекст</small>
+                    <small class="fragment">Получаешь будущий пост, который почти сразу можно публиковать</small>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <small>Вроде работает</small>
+                    <h2>Может можно сделать что-то масштабнее?</h2>
+                </div>
+            </section>
+
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <small>3 / 3</small>
+                    <h2>Взрослеем</h2>
+                </div>
+            </section>
+
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <img class="im" src="./aiassis.webp" />
+                    <small style="margin-top: 10vh;">Как работать с большими данными</small>
+                    <h2 class="fragment">Задачи нет под рукой</h2>
+                    <small class="fragment">Хочу в чате спросить что у нее по статусу</small>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <small>Fine-tuning нам не подойдет</small>
+                    <h2 class="fragment">не Real-time</h2>
+                    <h2 class="fragment">требует ресурсы</h2>
+                    <small class="fragment">Поэтому есть другой подход</small>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <small>Контекстное окно у gpt не большое</small>
+                    <h2 class="fragment">Скормить все данные не получится</h2>
+                    <small class="fragment">Нужно находить нужные</small>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b" data-transition="fade">
+                <img class="full" src="./rag.jpeg" />
+            </section>
+            <section data-background-color="#0b0b0b" data-transition="fade">
+                <h1>RAG</h1>
+            </section>
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <img class="im" src="./redis.png" />
+                    <small style="margin-top: 10vh;">Но нужно предварительно создать индекс</small>
+                    <h2 class="fragment">Redis Vector / Vector.js</h2>
+                    <small class="fragment">Есть встроенный векторный поиск</small>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b" data-transition="fade">
+                <div class="container">
+                    <pre style=" width: 1000px; ">
+                        <code class="prev language-javascript" data-line-numbers style="max-height: max-content;height: 1000px;margin-top: -12vh !important;">
+
+    const text2Embedding = (text) =>
+        fetch("https://api.openai.com/v1/embeddings", {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${OPENAI_API_KEY}`
+            },
+            body: JSON.stringify({
+                // наш фрагмент
+                input: text,
+                // модель для ембединга
+                model: "text-embedding-3-small"
+            })
+        })
+        .then(response => response.json())
+        .then(response => response.data[0].embedding)
+    
+    // text2Embedding("...") => [ -0.006929283495992422, -0.005336422007530928, -4.547132266452536e-05, -0.024047505110502243]
+                        </code>
+                    </pre>
+                    <small style="margin-top: 2vh;">Разбиваем текст на фрагменты</small>
+                    <h3 class="fragment">Создаем Embedding</h3>
+                    <small class="fragment">Храним их в паре в редиске</small>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b" data-transition="fade">
+                <div class="container">
+                    <pre style=" width: 1000px; ">
+                        <code class="prev language-javascript" data-line-numbers style="max-height: max-content;height: 1000px;margin-top: -12vh !important;">
+    // проходимся по всем 
+    for (const item of all) {
+        const vec = await text2Embedding(text);
+        nodeRedisClient.hSet(`${item.id}`, {
+            text,
+            embeddings: Buffer.from(new Float32Array(vec).buffer),
+        })
+    }
+    
+    const knnRedisSearch = (vec) => {
+        const queryVecBuffer = Buffer.from(new Float32Array(vec).buffer);
+
+        const results = await nodeRedisClient.ft.search(
+            INDEX_KEY,
+            `*=>[KNN 10 @embeddings $vec AS score]`, {
+                PARAMS: {
+                    vec: queryVecBuffer,
+                },
+                RETURN: ['text'],
+                SORTBY: {
+                    BY: 'score',
+                },
+                DIALECT: 2,
+            }
+        );
+    }
+                        </code>
+                    </pre>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b" data-transition="fade">
+                <div class="container">
+                    <pre style=" width: 1000px; ">
+                        <code class="prev language-javascript" data-line-numbers style="max-height: max-content;height: 1000px;margin-top: 0vh !important;">
+    const text = "По каким фреймворкам нужно сделать доклад?"
+    const textEmbedding = await text2Embedding(text);
+    
+    // Находим топ 10 похожих фрагментов
+    const documents = knnRedisSearch(textEmbedding);
+    
+    const response = await fetchGPT([
+        {
+            role: "system",
+            content: ` Отвечай на вопрос только в контексте: ${documents.join('\n')} `
+        },
+        // text - вопрос пользователя
+        { role: "user", content: text, }
+    ])
+
+    // response.choices[0].message.content => "Ответ на вопрос"
+                        </code>
+                    </pre>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b">
+                <video class="full" autoplay muted src="./dokkl.mp4">
+                </video>
+            </section>
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <small>А что там с сенсетив данными</small>
+                    <h2 class="fragment">Надо думать как все это захостить локально</h2>
+                    <small class="fragment">И не продолбать все бюджеты</small>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <small>Возьмем опен-сорс сеть</small>
+                    <h2 class="fragment">Deepseek R1 - 700gb</h2>
+                    <small class="fragment">Что это означает?</small>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <img class="im" src="./gpu141.png" />
+                    <small src="./openai embedding.png"  style="margin-top: 10vh;">Нам нужна GPU, которая вмещает в себя эти 700 gb</small>
+                    <small class="fragment">На одну материнскую помещается около 6-8</small>
+                    <small class="fragment">Что выходит очень дорого</small>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <small>Поэтому появились</small>
+                    <h2 class="fragment">Квантизация</h2>
+                    <h2 class="fragment">Перенос вычислений на процессор</h2>
+                    <small class="fragment">Поэтому можем брать легкое железо</small>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <small>Ищем квантизированную открытую модель</small>
+                    <h2 class="fragment">Llama 3 8b</h2>
+                    <small class="fragment">8b - 8 миллиардов параметров (2 трлн у ChatGPT)</small>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b" data-transition="fade">
+                <img class="full" src="./llamas.png" />
+            </section>
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <small>Но есть нюансы</small>
+                    <h2 class="fragment">Модель выкинула часть языка</h2>
+                    <small class="fragment">Выход есть</small>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b" data-transition="fade">
+                <img class="full" src="./llamasf.png" />
+            </section>
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <small>Llama CPP</small>
+                    <h2 class="fragment">Запускает модель на процессоре</h2>
+                    <small class="fragment">квантизованную (GGUF) модель</small>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <img class="im" src="./nodellama.png" />
+                    <small style="margin-top: 10vh;">Node Llama CPP</small>
+                    <h2 class="fragment">А вот и JS!</h2>
+                    <small class="fragment">Nodejs умеет под капотом запускать cpp проекты и давать возможность взаимодействовать с ними</small>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b" data-transition="fade">
+                <img class="full" src="./nodejscpp.png" />
+            </section>
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <img class="im" src="./nodellamar.png" />
+                    <small style="margin-top: 10vh;">есть те же методы api</small>
+                    <h2 class="fragment">Context, Embedding</h2>
+                    <small class="fragment">Осталось поставить</small>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b" data-transition="fade">
+                <img class="full" src="./incode.png" style="object-fit: contain;" />
+            </section>
+            <section data-background-color="#0b0b0b" data-transition="fade">
+                <img class="full" src="./success.jpeg" style="object-fit: contain;" />
+            </section>
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <small>запустили локально</small>
+                    <h2 class="fragment">Ура оно работает!</h2>
+                    <small class="fragment">какие ресурсы нужны на сервер</small>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <img class="im" src="./coasts.png" />
+                    <small style="margin-top: 10vh;">Желательно чтобы была gpu</small>
+                    <h2 class="fragment">Аренда 10-30к в месяц</h2>
+                    <small class="fragment">достаточно для работы</small>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b">
+                <div class="container">
+                    <small >Вот мы и сделали приложение Умным</small>
+                    <h2 class="fragment">Поставили его на сервер</h2>
+                    <small class="fragment">Применив все знания что мы получили</small>
+                </div>
+            </section>
+            <section data-background-color="#0b0b0b">
+                <video class="full" autoplay muted src="./demo.mp4">
+                </video>
+            </section>
+            <section data-background-color="#0b0b0b">
+                <h2>Спасибо</h2>
+                <h2 class="fragment">tg @snipeek</h2>
+            </section>
+        </section>
+    </div>
+</div>
+
+<script>
+    Reveal.initialize({
+        width: '100%',
+        height: '100%',
+        margin: 0,
+        minScale: 1,
+        slideNumber: true,
+        backgroundTransition: 'slide',
+        maxScale: 1,
+    });
+</script>
+</body>
+
+</html>
