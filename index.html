@@ -856,6 +856,13 @@
         backgroundTransition: 'slide',
         maxScale: 1,
     });
+    Reveal.on('slidechanged', event => {
+        const videos = event.currentSlide.querySelectorAll('video[autoplay]');
+        videos.forEach(video => {
+            video.currentTime = 0;
+            video.play().catch(e => console.log('Autoplay blocked:', e));
+        });
+    });
 </script>
 </body>
 
